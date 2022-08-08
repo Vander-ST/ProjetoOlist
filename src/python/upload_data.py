@@ -14,7 +14,7 @@ import pymysql
 str_connection = 'sqlite:///{path}'		#Definindo String de conexão
 
 #Importante o BASE_DIR e o DATA_DIR, para caso seja aberto em outra máquina, irá referenciar o local exato na máquina atual
-BASE_DIR =  os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) )     #Identificar endereço da pasta do projeto
+BASE_DIR =  os.path.dirname(os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ))     #Identificar endereço da pasta do projeto
 DATA_DIR = os.path.join(BASE_DIR, 'data')   #Combinar o endereço BASE_DIR com a String 'data'
 
 files_names = os.listdir(DATA_DIR) #Listar todos os arquivos dentro desde diretório
