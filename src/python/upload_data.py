@@ -11,8 +11,6 @@ import pymysql
 
 #str_connection = 'mysql+pymysql:///{user}:{psw}@{host}:{port}'		#Caminho para acessar o bando de dados cloud
 
-str_connection = 'sqlite:///{path}'		#Definindo String de conexão
-
 #Importante o BASE_DIR e o DATA_DIR, para caso seja aberto em outra máquina, irá referenciar o local exato na máquina atual
 BASE_DIR =  os.path.dirname(os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ))     #Identificar endereço da pasta do projeto
 DATA_DIR = os.path.join(BASE_DIR, 'data')   #Combinar o endereço BASE_DIR com a String 'data'
@@ -26,6 +24,7 @@ for i in files_names: #Listar um embaixo do outro
     print(i)
 
 #Abrindo Conexão com o banco de dados
+str_connection = 'sqlite:///{path}'		#Definindo String de conexão
 str_connection = str_connection.format(path=os.path.join(DATA_DIR,'olist.db'))		#Trocando o caminho do path para o DATA_DIR e concatenando 'olist.db'
 connection = sqlalchemy.create_engine(str_connection)
 
