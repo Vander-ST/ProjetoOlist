@@ -3,7 +3,7 @@ import sqlalchemy
 import argparse
 import pandas as pd
 import datetime
-
+import utils        #importando arquivo utils.py onde se encontram as funções
 
 #Definindo local do diretório de desenvolvimento
 BASE_DIR =  os.path.dirname(os.path.dirname( os.path.dirname( os.path.abspath(__file__) ) ))     #Identificar endereço da pasta do projeto
@@ -11,26 +11,22 @@ DATA_DIR = os.path.join(BASE_DIR, 'data')       # Combinar o endereço BASE_DIR 
 SQL_DIR = os.path.join(BASE_DIR, 'src' , 'sql' )        # Combina o endereço 'BASE_DIR' com a pasta 'src' e depois a pasta 'sql' 
 
 # Criando argumentos para passar a data início e data final
-parser = argparse.ArgumentParser()
-parser.add_argument('--date_end', '-e', help = 'Data final da extração', default = '2018-06-01')
-args = parser.parse_args()
+parser = argparse.ArgumentParser()      #Criando o argparser para a variável parser
+parser.add_argument('--date_end', '-e', help = 'Data final da extração', default = '2018-06-01') #Argumento da data será repassada pelo terminal(Ex: "python src/python/make_sgmt.py -e "2018-01-01")
+args = parser.parse_args()      #Atribuir os argumentos para a variável args
 
-date_end = args.date_end
-ano = int(date_end.split('-')[0]) - 1
-mes = int(date_end.split('-')[1])
-date_init = f'{ano}-{mes}-01'
+date_end = args.date_end        #Pegando a data através do argparser
+ano = int(date_end.split('-')[0]) - 1       #Separando a data em ano, mes e dia, fazendo a subtração de 1 do ano e atribuindo a variavel ano
+mes = int(date_end.split('-')[1])           #Separando a data em ano, mes e dia, pegando a posição 1(posição do mês) e atribuindo a variavel mes
+date_init = f'{ano}-{mes}-01'               #Criando a data início e atribuindo a variável data_init
 
 #Importando a Query
-with open( os.path.join(SQL_DIR, 'segmentos.sql')) as query_file:       #Importando a Query no arquivo segmento.sql
-    query = query_file.read()       #Lê a query e passa para a variável query
-
-query = query.format( date_init = date_init,   #Formatando a query e passando os argumentos guardados na variável 'args'
+query = utils.import_query(os.path.join(SQL_DIR, 'segmentos.sql'))      #importando a query através da função import_query from utils
+query = query.format( date_init = date_init,   #Formatando a query com as informaçãos das variáveis date_init e date_end
                       date_end = date_end)
 
 #Abrindo Conexão com o banco de dados
-str_connection = 'sqlite:///{path}'		#Definindo String de conexão
-str_connection = str_connection.format(path=os.path.join(DATA_DIR,'olist.db'))		#Trocando o caminho do path para o DATA_DIR e concatenando 'olist.db'
-connection = sqlalchemy.create_engine(str_connection)
+conn = utils.connect_db()
 
 # Criando Query para criar tabela passando como parâmetro toda a query que importou através da variável 'query'
 create_query = f'''     
@@ -44,7 +40,6 @@ INSERT INTO tb_seller_sgmt {query};
 '''
 
 try:
-    connection.execute(create_query)   #Tentar executar o que está na variável 'create_query'
+    utils.execute_many_sql(create_query, conn)      #Tenta executar a criação da tabela(create_query)
 except:
-    for q in insert_query.split(";")[:-1]:
-        connection.execute(q)
+    utils.execute_many_sql(insert_query, conn, verbose=True)        #Se não conseguiu criar a tabela, faz a inserção da query para pegar as informações do banco de dados
