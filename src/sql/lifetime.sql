@@ -1,9 +1,9 @@
-SELECT * , PERCENT_RANK() OVER (PARTITION BY product_category_name ORDER BY qtd_dias) AS PCT_ACUM
+SELECT * 
 
 FROM (
 
-    SELECT * , JULIANDAY(DATE(T1.order_approved_at)) - JULIANDAY(DATE(last_sale)) AS qtd_dias
-
+    SELECT * , JULIANDAY(DATE(T1.order_approved_at)) - JULIANDAY(DATE(last_sale)) AS qtd_dias,
+                ROW_NUMBER() OVER (PARTITION BY seller_id, product_category_name ORDER BY RANDOM() ) as Random
     FROM (
 
         SELECT T2.seller_id,T3.product_category_name, T1.order_approved_at,
@@ -25,3 +25,5 @@ FROM (
     WHERE T1.last_sale IS NOT NULL AND qtd_dias >= 1
 
 ) AS T1
+
+WHERE Random = 1
